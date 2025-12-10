@@ -1,0 +1,219 @@
+import React, { useState, useEffect } from 'react';
+import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard';
+import QuestionMode from './components/QuestionMode';
+import QuestionBank from './components/QuestionBank';
+import AIChat from './components/AIChat';
+import LearningMode from './components/LearningMode';
+import ExamArchive from './components/ExamArchive';
+import { ViewState } from './types';
+import { INITIAL_STATS } from './constants';
+import { Menu, Scale } from 'lucide-react'; // Ícone da balança
+
+const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<ViewState>(ViewState.DASHBOARD);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [isExamMode, setIsExamMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('jusMindTheme') === 'dark' ||
+        (!localStorage.getItem('jusMindTheme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  const [stats, setStats] = useState(() => {
+      try {
+        const saved = localStorage.getItem('jusMindStats');
+        return saved ? JSON.parse(saved) : INITIAL_STATS;
+      } catch (e) {
+        return INITIAL_STATS;
+      }
+  });
+
+  const [lastUpdate, setLastUpdate] = useState(() => {
+      return localStorage.getItem('jusMindLastUpdate') || 'Nunca';
+  });
+
+  const [learningProgress, setLearningProgress] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('jusMindLearning');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('jusMindTheme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('jusMindTheme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  useEffect(() => {
+      localStorage.setItem('jusMindStats', JSON.stringify(stats));
+  }, [stats]);
+
+  useEffect(() => {
+      localStorage.setItem('jusMindLearning', JSON.stringify(learningProgress));
+  }, [learningProgress]);
+
+  const updateTimestamp = () => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const newTimestamp = `${dateStr} às ${timeStr}`;
+    
+    setLastUpdate(newTimestamp);
+    localStorage.setItem('jusMindLastUpdate', newTimestamp);
+  };
+
+  const handleUpdateStats = (isCorrect: boolean) => {
+    updateTimestamp();
+    setStats((prev: any) => {
+        const newSolved = prev.questionsSolved + 1;
+        const oldCorrect = Math.round((prev.accuracy / 100) * prev.questionsSolved);
+        const newCorrect = oldCorrect + (isCorrect ? 1 : 0);
+        const newAccuracy = Math.round((newCorrect / newSolved) * 100);
+
+        return {
+            ...prev,
+            questionsSolved: newSolved,
+            accuracy: isNaN(newAccuracy) ? 0 : newAccuracy,
+            streakDays: prev.streakDays || 1 
+        };
+    });
+  };
+
+  const handleUpdateLearningProgress = (moduleId: string, progress: number) => {
+    updateTimestamp();
+    setLearningProgress(prev => ({
+      ...prev,
+      [moduleId]: progress
+    }));
+  };
+
+  const handleNavigate = (view: ViewState) => {
+    setCurrentView(view);
+    if (view !== ViewState.QUIZ_ACTIVE) {
+        setSelectedTopic(null);
+        setIsExamMode(false);
+    }
+    setIsSidebarOpen(false);
+  };
+
+  const handleStartQuiz = (topic: string) => {
+    setSelectedTopic(topic);
+    setIsExamMode(false);
+    setCurrentView(ViewState.QUIZ_ACTIVE);
+  };
+
+  const handleStartExam = (subject: string, university: string) => {
+    setSelectedTopic(`${subject} (${university})`);
+    setIsExamMode(true);
+    setCurrentView(ViewState.QUIZ_ACTIVE);
+  };
+
+  const handleExitQuiz = () => {
+    setCurrentView(ViewState.QUESTION_BANK);
+    setSelectedTopic(null);
+    setIsExamMode(false);
+  };
+
+  const renderContent = () => {
+    switch (currentView) {
+      case ViewState.DASHBOARD:
+        return (
+          <Dashboard 
+            onNavigate={handleNavigate} 
+            stats={stats} 
+            lastUpdate={lastUpdate} 
+          />
+        );
+      case ViewState.QUESTION_BANK:
+        return <QuestionBank onStartQuiz={handleStartQuiz} />;
+      case ViewState.LEARNING:
+        return (
+          <LearningMode 
+            learningProgress={learningProgress}
+            onUpdateProgress={handleUpdateLearningProgress}
+          />
+        );
+      case ViewState.EXAMS:
+        return <ExamArchive onStartExam={handleStartExam} />;
+      case ViewState.AI_TUTOR:
+        return <AIChat />;
+      case ViewState.QUIZ_ACTIVE:
+        return (
+          <QuestionMode 
+            topicName={selectedTopic || "Geral"} 
+            isExamMode={isExamMode}
+            onExit={handleExitQuiz} 
+            onUpdateStats={handleUpdateStats}
+          />
+        );
+      case ViewState.STATS:
+         return (
+           <Dashboard 
+             onNavigate={handleNavigate} 
+             stats={stats} 
+             lastUpdate={lastUpdate} 
+           />
+         );
+      default:
+        return (
+            <Dashboard 
+              onNavigate={handleNavigate} 
+              stats={stats} 
+              lastUpdate={lastUpdate} 
+            />
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex font-sans text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      <Sidebar 
+        currentView={currentView} 
+        onNavigate={handleNavigate} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+      />
+      
+      <main className="flex-1 relative flex flex-col w-full max-w-[100vw] overflow-x-hidden">
+        {/* Mobile Header */}
+        <header className="lg:hidden bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4 flex items-center justify-between sticky top-0 z-30 transition-colors">
+          <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400">
+            <Scale className="w-6 h-6 fill-current" />
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Jus<span className="text-secondary-900 dark:text-primary-400">Mind</span></span>
+          </div>
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </header>
+
+        <div className="flex-1">
+            {renderContent()}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default App;
