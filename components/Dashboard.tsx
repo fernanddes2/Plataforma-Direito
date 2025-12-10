@@ -1,7 +1,7 @@
 import React from 'react';
 import { ViewState, UserStats } from '../types';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { Trophy, Target, Flame, ArrowRight, Activity, Clock, FolderOpen, ExternalLink } from 'lucide-react';
+import { Trophy, Target, Flame, ArrowRight, Activity, Clock } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate: (view: ViewState) => void;
@@ -16,7 +16,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, stats, lastUpdate }) 
       <div className="flex items-center justify-between mb-8 2xl:mb-12">
         <div>
             <h1 className="text-3xl 2xl:text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1 2xl:text-lg">Bem-vindo de volta! Aqui está seu progresso.</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 2xl:text-lg">Bem-vindo de volta! Aqui está seu progresso jurídico.</p>
         </div>
         <div className="text-right hidden md:block">
             <p className="text-sm text-gray-400 dark:text-gray-500 flex items-center justify-end gap-1">
@@ -66,7 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, stats, lastUpdate }) 
         <div className="bg-white dark:bg-slate-800 p-6 2xl:p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 transition-colors flex flex-col">
             <h3 className="text-lg 2xl:text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <Activity className="w-5 h-5 2xl:w-6 2xl:h-6 mr-2 text-primary-500" />
-                Desempenho por Tópico
+                Desempenho por Matéria
             </h3>
             <div className="h-72 2xl:h-96 flex-1">
                 {stats.topicPerformance && stats.topicPerformance.length > 0 ? (
@@ -98,31 +98,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, stats, lastUpdate }) 
         </div>
 
         {/* Quick Actions */}
-        <div className="space-y-6 2xl:space-y-8">
+        <div className="space-y-6 2xl:space-y-8 flex flex-col">
             
-            {/* Drive Access Card (New) */}
-            <a 
-                href="https://drive.google.com/drive/folders/0B5t8V5qZUOqpc3JUX1dGSGc1SUk?resourcekey=0-0ZFBc1gjxduqPlYrLzPaLA&usp=drive_link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-between group"
-            >
-                <div>
-                    <h3 className="text-xl font-bold mb-1 flex items-center">
-                        <FolderOpen className="w-5 h-5 mr-2" /> Acervo Digital
-                    </h3>
-                    <p className="text-emerald-100 text-sm">Acesse PDFs de livros (Sadiku, Halliday) e listas de exercícios.</p>
-                </div>
-                <ExternalLink className="w-6 h-6 text-white opacity-70 group-hover:opacity-100 transition-opacity" />
-            </a>
-
             <div className="bg-gradient-to-br from-secondary-900 to-slate-800 rounded-2xl p-8 2xl:p-10 text-white shadow-lg relative overflow-hidden flex-1 flex flex-col justify-center">
                 <div className="relative z-10">
                     <h3 className="text-2xl 2xl:text-3xl font-bold mb-2">Continue Estudando</h3>
                     <p className="text-gray-300 mb-6 2xl:mb-8 max-w-md 2xl:text-lg">
                         {stats.questionsSolved === 0 
-                            ? "Comece sua jornada resolvendo sua primeira questão no Banco de Questões." 
-                            : "Que tal resolver mais algumas questões para manter o ritmo?"}
+                            ? "Comece sua jornada jurídica resolvendo sua primeira questão." 
+                            : "Que tal resolver mais algumas questões para manter o ritmo de estudos?"}
                     </p>
                     <button 
                         onClick={() => onNavigate(ViewState.QUESTION_BANK)}
@@ -144,14 +128,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, stats, lastUpdate }) 
                         className="p-4 2xl:p-6 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-left group"
                     >
                         <span className="block text-blue-600 dark:text-blue-400 font-bold mb-1 group-hover:translate-x-1 transition-transform">Tutor IA</span>
-                        <span className="text-xs 2xl:text-sm text-blue-800 dark:text-blue-300">Tirar dúvidas agora</span>
+                        <span className="text-xs 2xl:text-sm text-blue-800 dark:text-blue-300">Tirar dúvidas jurídicas</span>
                     </button>
                     <button 
                         onClick={() => onNavigate(ViewState.EXAMS)}
                         className="p-4 2xl:p-6 rounded-xl bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors text-left group"
                     >
                         <span className="block text-purple-600 dark:text-purple-400 font-bold mb-1 group-hover:translate-x-1 transition-transform">Simulados</span>
-                        <span className="text-xs 2xl:text-sm text-purple-800 dark:text-purple-300">Provas UFF/Estácio</span>
+                        <span className="text-xs 2xl:text-sm text-purple-800 dark:text-purple-300">Provas OAB e Concursos</span>
                     </button>
                  </div>
             </div>

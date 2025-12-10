@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MOCK_LEARNING_MODULES } from '../constants';
-import { CheckCircle, Search, Sparkles, FolderOpen, BookOpen, ListChecks, RotateCcw, X, ExternalLink, CheckSquare, Scale } from 'lucide-react';
+import { CheckCircle, Search, Sparkles, BookOpen, ListChecks, RotateCcw, X, CheckSquare, Scale } from 'lucide-react';
 import { generateLessonContent, extractTopicsFromLesson } from '../services/geminiService';
 import { LearningModule } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -234,19 +234,6 @@ const LearningMode: React.FC<LearningModeProps> = ({ learningProgress, onUpdateP
                 onScroll={handleScroll}
               >
                   <div className="max-w-5xl mx-auto bg-white dark:bg-slate-800 p-6 md:p-10 2xl:p-14 rounded-2xl shadow-sm min-h-full mb-20 transition-all dark:border dark:border-slate-700 relative">
-                      {!loading && (
-                          <a 
-                            href="https://drive.google.com/drive/folders/0B5t8V5qZUOqpc3JUX1dGSGc1SUk?resourcekey=0-0ZFBc1gjxduqPlYrLzPaLA&usp=drive_link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="absolute top-6 right-6 hidden md:flex items-center space-x-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors border border-emerald-200 dark:border-emerald-800"
-                          >
-                              <FolderOpen className="w-4 h-4" />
-                              <span>Acervo Digital (PDFs)</span>
-                              <ExternalLink className="w-3 h-3" />
-                          </a>
-                      )}
-
                       {loading ? (
                           <SkeletonLoader />
                       ) : (
